@@ -6,16 +6,17 @@ LIMIT_FPS = 20
 #Defines the size of the map.
 MAP_WIDTH = 80
 MAP_HEIGHT = 45
+#Defines the colors that the walls will have.
+color_dark_wall = libtcod.Color(0, 0, 100)
+color_dark_ground = libtcod.Color(50, 50, 150)
 
 class Tile: 
 	#class for the tiles that will form the map
 	def __init__(self, blocked, block_sight):
 		self.blocked = blocked
-
-		#If tile blocks movement it also blocks sight
+		#If tile blocks movement, it also blocks sight
 		if block_sight is None: block_sight = blocked
 		self.block_sight = block_sight
-
 
 class Object:
 	#creates a broad object-class usable for most things
@@ -37,17 +38,13 @@ class Object:
 		#erase the character that represents this object
 		libtcod.console_put_char(con, self.x, self.y, ' ', libtcod.BKGND_NONE)
 
-#Defines the colors that the walls will have.
-color_dark_wall = libtcod.Color(0, 0, 100)
-color_dark_ground = libtcod.Color(50, 50, 150)
-
 #Checks for keypresses & changes player coordinate
 def handle_keys():
 	global playerx, playery
  
 	key = libtcod.console_wait_for_keypress(True)  #waits for input; turn-based
 
-	#Fullscreen and quit function    
+	#Fullscreen and quit function
 	if key.vk == libtcod.KEY_ENTER and key.lalt:
 		#Alt+Enter: toggle fullscreen
 		libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
@@ -71,7 +68,7 @@ def make_map():
 	global map
  
 	#fill map with "unblocked" tiles
-	map = [[ Tile(False)
+	map = [[ Tile(False, False)
 		for y in range(MAP_HEIGHT) ]
 			for x in range(MAP_WIDTH) ]
 
@@ -83,9 +80,9 @@ def make_map():
 
 #Defines function that render all objects.
 def render_all():
-	#draw all objects in the list
-	for object in objects:
-		object.draw()
+	global color_dark_ground
+	global color_dark_wall 
+
 	#Goes through all tiles and prints them in color
 	for y in range(MAP_HEIGHT):
 		for x in range(MAP_WIDTH):
@@ -94,11 +91,11 @@ def render_all():
 				libtcod.console_set_char_background(con, x, y, color_dark_wall, libtcod.BKGND_SET )
 			else:
 				libtcod.console_set_char_background(con, x, y, color_dark_ground, libtcod.BKGND_SET )
+	#draw all objects in the list
+	for object in objects:
+		object.draw()
 
-#Defines all objects used in game.
-player = Object(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, '@', libtcod.white)
-npc = Object(SCREEN_WIDTH/2 - 5, SCREEN_HEIGHT/2, '@', libtcod.yellow)
-objects = [npc, player]
+
 
 
 ############################
@@ -118,6 +115,11 @@ libtcod.sys_set_fps(LIMIT_FPS)
 playerx = SCREEN_WIDTH/2
 playery = SCREEN_HEIGHT/2
 
+player = Object(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 'E', libtcod.white)
+#Defines all objects used in game.
+objects = [player]
+
+
 #Draws the map on screen
 make_map()
 
@@ -126,15 +128,13 @@ make_map()
 ###########################
 
 while not libtcod.console_is_window_closed():
-	#Prints background
-	libtcod.console_set_default_foreground(0, libtcod.white)
-	#Prints character to screen
-	libtcod.console_put_char(0, playerx, playery, '@', libtcod.BKGND_NONE)
 	#Renders the screen
 	render_all()
 	#draws all objects
 	for object in objects:
 		object.draw()
+	
+	libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)	
 	#Flushes screen
 	libtcod.console_flush()
 
@@ -142,9 +142,7 @@ while not libtcod.console_is_window_closed():
 	for object in objects:
 		object.clear()
 	#Initializes other console
-	libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
-	#Removes trail of character-signs
-	libtcod.console_put_char(0, playerx, playery, ' ', libtcod.BKGND_NONE)
+
 
 	#handle keys and exit game if needed
 	exit = handle_keys()
