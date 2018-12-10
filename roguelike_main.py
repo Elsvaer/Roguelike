@@ -40,29 +40,27 @@ class Object:
 
 #Checks for keypresses & changes player coordinate
 def handle_keys():
-	global playerx, playery
+    key = libtcod.console_wait_for_keypress(True)  #turn-based
  
-	key = libtcod.console_wait_for_keypress(True)  #waits for input; turn-based
-
-	#Fullscreen and quit function
-	if key.vk == libtcod.KEY_ENTER and key.lalt:
-		#Alt+Enter: toggle fullscreen
-		libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
-	elif key.vk == libtcod.KEY_ESCAPE:
-		return True  #exit game
-
-	#movement keys
-	if libtcod.console_is_key_pressed(libtcod.KEY_UP):
-		playery -= 1
+    if key.vk == libtcod.KEY_ENTER and key.lalt:
+        #Alt+Enter: toggle fullscreen
+        libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
  
-	elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
-		playery += 1
+    elif key.vk == libtcod.KEY_ESCAPE:
+        return True  #exit game command
  
-	elif libtcod.console_is_key_pressed(libtcod.KEY_LEFT):
-		playerx -= 1
+    #movement keys
+    if libtcod.console_is_key_pressed(libtcod.KEY_UP):
+        player.move(0, -1)
  
-	elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
-		playerx += 1
+    elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
+        player.move(0, 1)
+ 
+    elif libtcod.console_is_key_pressed(libtcod.KEY_LEFT):
+        player.move(-1, 0)
+ 
+    elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
+        player.move(1, 0)
 
 def make_map():
 	global map
@@ -111,11 +109,7 @@ con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 #Limits FPS
 libtcod.sys_set_fps(LIMIT_FPS)
 
-#Defines variables of player position
-playerx = SCREEN_WIDTH/2
-playery = SCREEN_HEIGHT/2
-
-player = Object(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 'E', libtcod.white)
+player = Object(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, "@", libtcod.white)
 #Defines all objects used in game.
 objects = [player]
 
